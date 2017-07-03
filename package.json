@@ -1,0 +1,28 @@
+{
+  "name": "react-wiki-app",
+  "version": "1.0.0",
+  "description": "A live collaborative wiki",
+  "main": "server.js",
+  "scripts": {
+    "build:js": "browserify ./src/app.js -t [babelify --optional es7.classProperties] --outfile public/all.js",
+    "build": "watch 'npm run build:js' ./src"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babelify": "^6.2.0",
+    "browserify": "^11.0.1",
+    "watch": "^0.16.0"
+  },
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "cookie-parser": "^1.4.3",
+    "ejs": "^2.5.6",
+    "express": "^4.15.3",
+    "express-session": "^1.15.3",
+    "firebase": "^2.4.2",
+    "firebase-admin": "^5.0.0",
+    "react": "^0.13.3",
+    "react-router": "^0.13.6"
+  }
+}
