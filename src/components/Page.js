@@ -1,5 +1,6 @@
 import React from 'react';
 import * as API from '../api';
+import Section from './Section';
 
 export default class Page extends React.Component {
   state = {
@@ -32,7 +33,14 @@ export default class Page extends React.Component {
     let sections = [];
 
     if (this.state.page.title) {
+
       // render the page sections
+      if (this.state.sections) {
+        sections = Object.keys(this.state.sections).map( id => <Section
+                    key={id}
+                    section={this.state.sections[id]} />)
+      }
+      
       if(this.props.user)
         sections.push(<p key='addSection'>
           <button onClick={this.addSection}>Add Section</button>
