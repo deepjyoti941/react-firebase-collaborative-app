@@ -26009,6 +26009,8 @@ var Page = (function (_React$Component) {
           sections = Object.keys(this.state.sections).map(function (id) {
             return _react2['default'].createElement(_Section2['default'], {
               key: id,
+              user: _this2.props.user,
+              path: _this2.props.params.id + '/sections/' + id,
               section: _this2.state.sections[id] });
           });
         }
@@ -26198,6 +26200,8 @@ var Section = (function (_React$Component) {
   _inherits(Section, _React$Component);
 
   function Section(props) {
+    var _this = this;
+
     _classCallCheck(this, Section);
 
     // super constructor as this component extends other class React.Component
@@ -26205,27 +26209,65 @@ var Section = (function (_React$Component) {
 
     this.getState = function (props) {
       return {
+        editing: props.user && props.user.username === props.section.editor,
         content: props.section.content,
         html: props.section.content ? _markdown.markdown.toHTML(props.section.content) : ''
       };
     };
 
+    this.updateContent = function (evt) {
+      return _this.setState({ content: evt.target.value });
+    };
+
+    this.save = function (evt) {
+      _this.setState({ editing: false });
+      API.pages.child(_this.props.path).update({
+        editor: null,
+        content: _this.state.content || null
+      });
+    };
+
+    this.startEditing = function (evt) {
+      if (!_this.props.user || _this.state.editing) return;
+      _this.setState({ editing: true });
+      API.pages.child(_this.props.path).update({
+        editor: _this.props.user.username
+      });
+    };
+
     this.state = this.getState(props);
   }
 
-  // custom function to get the state of component
+  // render the html section as soon as the state is change i.e it goes to state with new values
 
   _createClass(Section, [{
+    key: 'componentWillReceiveProps',
+    value: function componentWillReceiveProps(nextProps) {
+      var state = this.getState(nextProps);
+      this.setState(state);
+    }
+
+    // custom function to get the state of component
+  }, {
     key: 'render',
     value: function render() {
 
-      var content = _react2['default'].createElement('span', { dangerouslySetInnerHTML: { __html: this.state.html } });
+      var content = undefined;
 
+      if (this.state.editing) {
+        content = _react2['default'].createElement('textarea', { className: 'twelve columns', defaultValue: this.state.content,
+          onChange: this.updateContent, onBlur: this.save });
+      } else {
+        content = _react2['default'].createElement('span', { dangerouslySetInnerHTML: { __html: this.state.html } });
+      }
       var classes = ['row', 'section'];
+
+      if (this.state.editing) classes.push('editing');
+      if (this.props.user) classes.push('editable');
 
       return _react2['default'].createElement(
         'section',
-        { className: classes.join(' ') },
+        { onClick: this.startEditing, className: classes.join(' ') },
         content
       );
     }
