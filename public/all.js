@@ -26199,13 +26199,19 @@ var _markdown = require('markdown');
 var Section = (function (_React$Component) {
   _inherits(Section, _React$Component);
 
-  function Section(props) {
+  /**
+   * [super constructor as this component extends other class React.Component]
+   * @param  {[type]} props   [props when the Section component is rendered]
+   * @param  {[type]} context [context passed from other class @here router context is passed to section component]
+   * @return {[type]}         [description]
+   */
+
+  function Section(props, context) {
     var _this = this;
 
     _classCallCheck(this, Section);
 
-    // super constructor as this component extends other class React.Component
-    _get(Object.getPrototypeOf(Section.prototype), 'constructor', this).call(this, props);
+    _get(Object.getPrototypeOf(Section.prototype), 'constructor', this).call(this, props, context);
 
     this.getState = function (props) {
       return {
@@ -26229,15 +26235,36 @@ var Section = (function (_React$Component) {
     };
 
     this.startEditing = function (evt) {
-      if (!_this.props.user || _this.state.editing) return;
+      // check if user click on anchor link
+      if (evt.target.tagName === 'A') {
+        // var href = evt.target.getAttribute('href');
+        var href = evt.target.pathname;
+
+        // check if local or external link
+        if (href.indexOf('/page/') > -1) {
+          evt.preventDefault();
+          _this.context.router.transitionTo(href);
+        }
+        return;
+      }
+
+      if (!_this.props.user || _this.state.editing || _this.state.locked) return; // if one user is editing the section other user will see it locked
       _this.setState({ editing: true });
       API.pages.child(_this.props.path).update({
         editor: _this.props.user.username
       });
     };
 
+    this.context = context;
     this.state = this.getState(props);
   }
+
+  /**
+   * [ Passing Data Across Components with Contexts (childContextTypes, getChildContext(), contextTypes)
+   * Reference: http://codetheory.in/passing-data-across-components-with-contexts-in-reactjs/
+   * @here passing router context to Section component to handle inter link click so that no full page refresh]
+   * @type {Object}
+   */
 
   // render the html section as soon as the state is change i.e it goes to state with new values
 
@@ -26278,6 +26305,9 @@ var Section = (function (_React$Component) {
 })(_react2['default'].Component);
 
 exports['default'] = Section;
+Section.contextTypes = {
+  router: _react2['default'].PropTypes.func.isRequired
+};
 module.exports = exports['default'];
 
 },{"../api":205,"markdown":4,"react":201}]},{},[206]);

@@ -4,9 +4,15 @@ import {markdown} from 'markdown';
 
 export default class Section extends React.Component {
 
-  constructor(props) {
-      // super constructor as this component extends other class React.Component
-      super(props);
+  /**
+   * [super constructor as this component extends other class React.Component]
+   * @param  {[type]} props   [props when the Section component is rendered]
+   * @param  {[type]} context [context passed from other class @here router context is passed to section component]
+   * @return {[type]}         [description]
+   */
+  constructor(props, context) {
+      super(props, context);
+      this.context = context;
       this.state = this.getState(props);
   }
 
@@ -55,10 +61,34 @@ export default class Section extends React.Component {
   }
 
   startEditing = evt => {
-    if(!this.props.user || this.state.editing) return;
+    // check if user click on anchor link
+    if (evt.target.tagName === 'A') {
+      // var href = evt.target.getAttribute('href');
+      var href = evt.target.pathname;
+
+      // check if local or external link
+      if(href.indexOf('/page/') > -1) {
+        evt.preventDefault();
+        this.context.router.transitionTo(href);
+      }
+      return;
+    }
+
+
+    if(!this.props.user || this.state.editing || this.state.locked) return; // if one user is editing the section other user will see it locked
     this.setState({ editing: true });
     API.pages.child(this.props.path).update({
       editor: this.props.user.username
     })
   }
+}
+
+/**
+ * [ Passing Data Across Components with Contexts (childContextTypes, getChildContext(), contextTypes)
+ * Reference: http://codetheory.in/passing-data-across-components-with-contexts-in-reactjs/
+ * @here passing router context to Section component to handle inter link click so that no full page refresh]
+ * @type {Object}
+ */
+Section.contextTypes = {
+  router: React.PropTypes.func.isRequired
 }
