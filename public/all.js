@@ -26078,13 +26078,12 @@ var _reactRouter = require('react-router');
 var PageList = (function (_React$Component) {
   _inherits(PageList, _React$Component);
 
-  function PageList() {
+  function PageList(props, context) {
     var _this = this;
 
     _classCallCheck(this, PageList);
 
-    _get(Object.getPrototypeOf(PageList.prototype), 'constructor', this).apply(this, arguments);
-
+    _get(Object.getPrototypeOf(PageList.prototype), 'constructor', this).call(this, props, context);
     this.state = {
       loaded: false,
       pages: {},
@@ -26097,9 +26096,12 @@ var PageList = (function (_React$Component) {
 
     this.createPage = function (evt) {
       if (evt.charCode !== 13) return;
-      API.pages.push({ title: _this.state.newPageTitle });
+      var firebaseReturnData = API.pages.push({ title: _this.state.newPageTitle });
+      _this.context.router.transitionTo('page', { id: firebaseReturnData.key() });
       _this.setState({ newPageTitle: '' });
     };
+
+    this.context = context;
   }
 
   _createClass(PageList, [{
@@ -26165,6 +26167,10 @@ var PageList = (function (_React$Component) {
 })(_react2['default'].Component);
 
 exports['default'] = PageList;
+
+PageList.contextTypes = {
+  router: _react2['default'].PropTypes.func.isRequired
+};
 module.exports = exports['default'];
 
 },{"../api":205,"react":201,"react-router":31}],211:[function(require,module,exports){
