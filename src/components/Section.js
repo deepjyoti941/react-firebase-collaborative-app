@@ -16,10 +16,20 @@ export default class Section extends React.Component {
       this.state = this.getState(props);
   }
 
+  componentDidMount() {
+    this.componentWillReceiveProps(this.props);
+  }
+
   // render the html section as soon as the state is change i.e it goes to state with new values
+  // when component receive new properties
   componentWillReceiveProps(nextProps) {
     var state = this.getState(nextProps);
-    this.setState(state);
+
+    this.makeInternalLinks(state.html, html => {
+      state.html = html;
+      this.setState(state);
+    });
+
   }
 
   // custom function to get the state of component
@@ -63,8 +73,8 @@ export default class Section extends React.Component {
   startEditing = evt => {
     // check if user click on anchor link
     if (evt.target.tagName === 'A') {
-      // var href = evt.target.getAttribute('href');
-      var href = evt.target.pathname;
+      var href = evt.target.getAttribute('href');
+      // var href = evt.target.pathname;
 
       // check if local or external link
       if(href.indexOf('/page/') > -1) {
@@ -80,6 +90,27 @@ export default class Section extends React.Component {
     API.pages.child(this.props.path).update({
       editor: this.props.user.username
     })
+  }
+
+  /**
+   * [ function to create inter links of type [[Dogs]] ]
+   * @type {[type]}
+   */
+  makeInternalLinks(html, callback) {
+      // regular exp which matches two opening sq brackets and capture the string between them and then match two closing sq brackets
+      const anchor = /\[\[(.*)\]\]/g;
+
+      API.pages.once('value', snapshot => {
+        let pages = snapshot.exportVal();
+        let keys = Object.keys(pages);
+
+        callback(html.replace(anchor, (match, anchorText) => {
+            for (let key of keys)
+              if(pages[key].title === anchorText.trim())
+                return `<a href="/page/${key}">${anchorText}</a>`
+        }));
+
+      });
   }
 }
 

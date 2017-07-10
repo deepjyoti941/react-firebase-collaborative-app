@@ -26237,8 +26237,8 @@ var Section = (function (_React$Component) {
     this.startEditing = function (evt) {
       // check if user click on anchor link
       if (evt.target.tagName === 'A') {
-        // var href = evt.target.getAttribute('href');
-        var href = evt.target.pathname;
+        var href = evt.target.getAttribute('href');
+        // var href = evt.target.pathname;
 
         // check if local or external link
         if (href.indexOf('/page/') > -1) {
@@ -26266,13 +26266,25 @@ var Section = (function (_React$Component) {
    * @type {Object}
    */
 
-  // render the html section as soon as the state is change i.e it goes to state with new values
-
   _createClass(Section, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      this.componentWillReceiveProps(this.props);
+    }
+
+    // render the html section as soon as the state is change i.e it goes to state with new values
+    // when component receive new properties
+  }, {
     key: 'componentWillReceiveProps',
     value: function componentWillReceiveProps(nextProps) {
+      var _this2 = this;
+
       var state = this.getState(nextProps);
-      this.setState(state);
+
+      this.makeInternalLinks(state.html, function (html) {
+        state.html = html;
+        _this2.setState(state);
+      });
     }
 
     // custom function to get the state of component
@@ -26298,6 +26310,49 @@ var Section = (function (_React$Component) {
         { onClick: this.startEditing, className: classes.join(' ') },
         content
       );
+    }
+  }, {
+    key: 'makeInternalLinks',
+
+    /**
+     * [ function to create inter links of type [[Dogs]] ]
+     * @type {[type]}
+     */
+    value: function makeInternalLinks(html, callback) {
+      // regular exp which matches two opening sq brackets and capture the string between them and then match two closing sq brackets
+      var anchor = /\[\[(.*)\]\]/g;
+
+      API.pages.once('value', function (snapshot) {
+        var pages = snapshot.exportVal();
+        var keys = Object.keys(pages);
+
+        callback(html.replace(anchor, function (match, anchorText) {
+          var _iteratorNormalCompletion = true;
+          var _didIteratorError = false;
+          var _iteratorError = undefined;
+
+          try {
+            for (var _iterator = keys[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+              var key = _step.value;
+
+              if (pages[key].title === anchorText.trim()) return '<a href="/page/' + key + '">' + anchorText + '</a>';
+            }
+          } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion && _iterator['return']) {
+                _iterator['return']();
+              }
+            } finally {
+              if (_didIteratorError) {
+                throw _iteratorError;
+              }
+            }
+          }
+        }));
+      });
     }
   }]);
 
