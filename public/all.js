@@ -26241,7 +26241,7 @@ var Section = (function (_React$Component) {
         // var href = evt.target.pathname;
 
         // check if local or external link
-        if (href.indexOf('/page/') > -1) {
+        if (href.indexOf('/page/') === 0) {
           evt.preventDefault();
           _this.context.router.transitionTo(href);
         }
@@ -26272,8 +26272,12 @@ var Section = (function (_React$Component) {
       this.componentWillReceiveProps(this.props);
     }
 
-    // render the html section as soon as the state is change i.e it goes to state with new values
-    // when component receive new properties
+    /**
+     * [componentWillReceiveProps when component receive new properties]
+     * [render the html section as soon as the state is change i.e it goes to state with new values]
+     * @param  {[type]} nextProps [description]
+     * @return {[type]}           [description]
+     */
   }, {
     key: 'componentWillReceiveProps',
     value: function componentWillReceiveProps(nextProps) {
@@ -26287,6 +26291,18 @@ var Section = (function (_React$Component) {
       });
     }
 
+    /**
+     * [componentDidUpdate this react function calls everytime when properties or state updates]
+     * @param  {[type]} prevProps [description]
+     * @param  {[type]} prevSate  [description]
+     * @return {[type]}           [description]
+     */
+  }, {
+    key: 'componentDidUpdate',
+    value: function componentDidUpdate(prevProps, prevSate) {
+      if (this.state.editing) _react2['default'].findDOMNode(this.refs.editor).focus();
+    }
+
     // custom function to get the state of component
   }, {
     key: 'render',
@@ -26295,7 +26311,7 @@ var Section = (function (_React$Component) {
       var content = undefined;
 
       if (this.state.editing) {
-        content = _react2['default'].createElement('textarea', { className: 'twelve columns', defaultValue: this.state.content,
+        content = _react2['default'].createElement('textarea', { ref: 'editor', className: 'twelve columns', defaultValue: this.state.content,
           onChange: this.updateContent, onBlur: this.save });
       } else {
         content = _react2['default'].createElement('span', { dangerouslySetInnerHTML: { __html: this.state.html } });

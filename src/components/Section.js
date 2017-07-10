@@ -20,8 +20,12 @@ export default class Section extends React.Component {
     this.componentWillReceiveProps(this.props);
   }
 
-  // render the html section as soon as the state is change i.e it goes to state with new values
-  // when component receive new properties
+  /**
+   * [componentWillReceiveProps when component receive new properties]
+   * [render the html section as soon as the state is change i.e it goes to state with new values]
+   * @param  {[type]} nextProps [description]
+   * @return {[type]}           [description]
+   */
   componentWillReceiveProps(nextProps) {
     var state = this.getState(nextProps);
 
@@ -30,6 +34,16 @@ export default class Section extends React.Component {
       this.setState(state);
     });
 
+  }
+
+  /**
+   * [componentDidUpdate this react function calls everytime when properties or state updates]
+   * @param  {[type]} prevProps [description]
+   * @param  {[type]} prevSate  [description]
+   * @return {[type]}           [description]
+   */
+  componentDidUpdate(prevProps, prevSate) {
+    if(this.state.editing) React.findDOMNode(this.refs.editor).focus();
   }
 
   // custom function to get the state of component
@@ -45,7 +59,7 @@ export default class Section extends React.Component {
     let content;
 
     if (this.state.editing) {
-      content = <textarea className='twelve columns' defaultValue={this.state.content}
+      content = <textarea ref='editor' className='twelve columns' defaultValue={this.state.content}
         onChange={this.updateContent} onBlur={this.save} />;
     } else {
       content = <span dangerouslySetInnerHTML={ {__html: this.state.html} }/>
@@ -77,7 +91,7 @@ export default class Section extends React.Component {
       // var href = evt.target.pathname;
 
       // check if local or external link
-      if(href.indexOf('/page/') > -1) {
+      if(href.indexOf('/page/') === 0) {
         evt.preventDefault();
         this.context.router.transitionTo(href);
       }
